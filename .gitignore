@@ -1,0 +1,11 @@
+.DS_Store
+.cache/
+.idea/**
+.pytest_cache/
+tests/.DS_Store
+tests/__init__.pyc
+tests/__pycache__/
+tests/resources/.DS_Store
+
+
+
