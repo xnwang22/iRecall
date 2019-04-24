@@ -1,3 +1,4 @@
 pytest
 opencv-python
+opencv-contrib-python
 numpy
