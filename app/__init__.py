@@ -49,32 +49,35 @@ def memorizeFaces(foldername):
     X, y = [], []
     names = []
     for dirname, dirnames, filenames in os.walk(foldername):
-        for subdirname in dirnames:
-            subject_path = os.path.join(dirname, subdirname)
-            for filename in os.listdir(subject_path):
-                try:
-                    if (filename == ".directory"):
-                        continue
-                    filepath = os.path.join(subject_path, filename)
-                    im = cv2.imread(os.path.join(subject_path, filename), cv2.IMREAD_GRAYSCALE)
-                    # resize to given size (if given)
-                    X.append(np.asarray(im, dtype=np.uint8))
-                    y.append(c)
-                    names.append(filename)
+ #       for subdirname in dirnames:
+ #           subject_path = os.path.join(dirname, subdirname)
+        for filename in filenames:
+            try:
+                if (filename == ".directory"):
+                    continue
+                filepath = os.path.join(foldername, filename)
+                im = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
+                # resize to given size (if given)
+                X.append(numpy.asarray(im, dtype=numpy.uint8))
+                y.append(c)
+                c = c + 1
+                names.append(filename)
 #                except IOError, (errno, strerror):
 #                   print ("I/O error({0}): {1}".format(errno, strerror))
-                except:
-                    print ("Unexpected error:", sys.exc_info()[0])
-                    raise
-            c = c + 1
+            except:
+                print ("Unexpected error:", sys.exc_info()[0])
+                raise
 
-    y = np.asarray(y, dtype=np.int32)
+    y = numpy.asarray(y, dtype=numpy.int32)
 
-    model = cv2.face.createEigenFaceRecognizer()
-    model.train(np.asarray(X), np.asarray(y))
-    return model
+    model1 = None
+    model1 = cv2.face.createEigenFaceRecognizer()
+    #model1 = cv2.face.LBPHFaceRecognizer_create()
 
-def recognizeFaces(filename, model, names):
+    model1.train(numpy.asarray(X), numpy.asarray(y))
+    return model1
+
+def recognizeFaces(filename, model):
     templatename = 'haarcascade_frontalface_default.xml'
 
     face_cascade = cv2.CascadeClassifier(templatename)
@@ -111,6 +114,7 @@ def recognizeFaces(filename, model, names):
 
 if __name__ == "__main__":
     saveFace('test.jpg')
-    showFace('test.jpg')
-#    model = memorizeFaces('./data')
-#    recognizeFaces('test.jpg', model)
+#    showFace('test.jpg')
+    model = memorizeFaces('./data')
+    recognizeFaces('test.jpg', model)
+
