@@ -71,39 +71,43 @@ def memorizeFaces(foldername):
     y = numpy.asarray(y, dtype=numpy.int32)
 
     model1 = None
-    model1 = cv2.face.createEigenFaceRecognizer()
-    #model1 = cv2.face.LBPHFaceRecognizer_create()
+    #model1 = cv2.face.createEigenFaceRecognizer()
+    #model1 = cv2.createLBPHFaceRecognizer()
+    model1 = cv2.face.LBPHFaceRecognizer_create()
 
     model1.train(numpy.asarray(X), numpy.asarray(y))
+    model1.save('model.tst')
     return model1
 
 def recognizeFaces(filename, model):
-    templatename = 'haarcascade_frontalface_default.xml'
+    if (model == None):
+        model1 = cv2.face.LBPHFaceRecognizer_create()
+        model1.read('model.tst')
+        model = model1
 
+    templatename = 'haarcascade_frontalface_default.xml'
     face_cascade = cv2.CascadeClassifier(templatename)
 
     img = cv2.imread(filename)
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
     count = 0
     for (x, y, w, h) in faces:
         img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        img1 = cv2.rectangle(gray, (x, y), (x + w, y + h), (255, 0, 0), 2)
         count = count + 1
         try:
-            roi = cv2.resize(img, (200, 200), interpolation=cv2.INTER_LINEAR)
+            roi = cv2.resize(img1[y:y + h, x:x + w], (200, 200), interpolation=cv2.INTER_LINEAR)
             params = model.predict(roi)
-            print ("Label: %s, Confidence: %.2f" % (params[0], params[1]))
-            cv2.putText(img, params[0], (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
-        except:
+            print("Label: %s, Confidence: %.2f" % (params[0], params[1]))
+            cv2.putText(img, str(params[0]), (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
+        except cv2.error as e:
+            print("cv2 error:", e)
             continue
-        cv2.imshow("camera", img)
-        if cv2.waitKey(1000 / 12) & 0xff == ord("q"):
-            break
-    cv2.destroyAllWindows()
-
-
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            continue
     cv2.namedWindow('Faces')
     cv2.imshow('Face Detected!', img)
     #    cv2.imwrite('./face.jpg', img)
@@ -116,5 +120,4 @@ if __name__ == "__main__":
     saveFace('test.jpg')
 #    showFace('test.jpg')
     model = memorizeFaces('./data')
-    recognizeFaces('test.jpg', model)
-
+    recognizeFaces('test.jpg', None)
