@@ -3,7 +3,7 @@ import os
 import sys
 import numpy
 #import exceptions
-
+recignized_names=['aaron', 'bad', 'callie', 'karen', 'doug', 'mike', 'nick', 'mark', 'opera', 'sophia', 'unknown']
 
 def saveFace(filename):
     templatename = 'haarcascade_frontalface_default.xml'
@@ -19,7 +19,7 @@ def saveFace(filename):
     for (x,y,w,h) in faces:
         img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
         f = cv2.resize(gray[y:y + h, x:x + w], (200, 200))
-        cv2.imwrite('./data/unknown_%s.pgm' % str(count), f)
+        cv2.imwrite('./data/{}.pgm'.format(recignized_names[count]), f)
         count = count +1
     return count
 
@@ -47,7 +47,7 @@ def showFace(filename):
 def memorizeFaces(foldername):
     c = 0
     X, y = [], []
-    names = []
+    image_names = []
     for dirname, dirnames, filenames in os.walk(foldername):
  #       for subdirname in dirnames:
  #           subject_path = os.path.join(dirname, subdirname)
@@ -61,7 +61,7 @@ def memorizeFaces(foldername):
                 X.append(numpy.asarray(im, dtype=numpy.uint8))
                 y.append(c)
                 c = c + 1
-                names.append(filename)
+                image_names.append(filename)
 #                except IOError, (errno, strerror):
 #                   print ("I/O error({0}): {1}".format(errno, strerror))
             except:
@@ -101,7 +101,7 @@ def recognizeFaces(filename, model):
             roi = cv2.resize(img1[y:y + h, x:x + w], (200, 200), interpolation=cv2.INTER_LINEAR)
             params = model.predict(roi)
             print("Label: %s, Confidence: %.2f" % (params[0], params[1]))
-            cv2.putText(img, str(params[0]), (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
+            cv2.putText(img, recignized_names[params[0]], (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
         except cv2.error as e:
             print("cv2 error:", e)
             continue
