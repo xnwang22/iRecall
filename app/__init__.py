@@ -4,6 +4,9 @@ import sys
 import numpy
 #import exceptions
 recignized_names=['aaron', 'bad', 'callie', 'karen', 'doug', 'mike', 'nick', 'mark', 'opera', 'sophia', 'unknown']
+algorithms = ['basic', 'lbh', 'eigen', 'fisher']
+models = {'lbh': cv2.face.LBPHFaceRecognizer_create(), 'eigen': cv2.face_EigenFaceRecognizer.create(),
+          'fisher': cv2.face_FisherFaceRecognizer.create()}
 
 def saveFace(filename):
     templatename = 'haarcascade_frontalface_default.xml'
@@ -70,20 +73,17 @@ def memorizeFaces(foldername):
 
     y = numpy.asarray(y, dtype=numpy.int32)
 
-    model1 = None
-    #model1 = cv2.face.createEigenFaceRecognizer()
-    #model1 = cv2.createLBPHFaceRecognizer()
-    model1 = cv2.face.LBPHFaceRecognizer_create()
+    model0 = None
+    for i in range(1,4):
+        model = models[algorithms[i]]
+        model.train(numpy.asarray(X), numpy.asarray(y))
+        model.save('model_{}.tst'.format(algorithms[i]))
+    return models
 
-    model1.train(numpy.asarray(X), numpy.asarray(y))
-    model1.save('model.tst')
-    return model1
+def recognizeFaces(filename, i):
 
-def recognizeFaces(filename, model):
-    if (model == None):
-        model1 = cv2.face.LBPHFaceRecognizer_create()
-        model1.read('model.tst')
-        model = model1
+    model = models[algorithms[i]]
+    model.read('model_{}.tst'.format(algorithms[i]))
 
     templatename = 'haarcascade_frontalface_default.xml'
     face_cascade = cv2.CascadeClassifier(templatename)
@@ -110,14 +110,15 @@ def recognizeFaces(filename, model):
             continue
     cv2.namedWindow('Faces')
     cv2.imshow('Face Detected!', img)
-    #    cv2.imwrite('./face.jpg', img)
-    cv2.waitKey(0)
+    cv2.imwrite('./face_{}.jpg'.format(algorithms[i]), img)
+    # cv2.waitKey(0)
     return count
-
 
 
 if __name__ == "__main__":
     saveFace('test.jpg')
 #    showFace('test.jpg')
+
     model = memorizeFaces('./data')
-    recognizeFaces('test.jpg', None)
+    for i in range(1,4):
+        recognizeFaces('test.jpg', i)
