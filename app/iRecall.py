@@ -56,12 +56,18 @@ def recognize_face(face, root_folder):
     except cv2.error as e:
         print("cv2 error:", e)
     except:
-        print("Unexpected error:", sys.exc_info()[0])
+        print("recognize_face Error:", sys.exc_info()[0])
+    return (-1, 1000000)
 
 def save_face(face, folder_name, root_folder):
     try:
-        filename = os.path.join(root_folder, folder_name)
-        filename = os.path.join(filename, uuid.uuid4().hex + '.pgm')
+        person_folder = os.path.join(root_folder, folder_name)
+        try:
+            os.stat(person_folder)
+        except:
+            os.mkdir(person_folder)
+
+        filename = os.path.join(person_folder, uuid.uuid4().hex + '.pgm')
         #filename = str(root_folder + '/' + folder_name + '/' + uuid.uuid4().hex() + '.pgm')
         cv2.imwrite(filename, face)
     except cv2.error as e:
@@ -74,7 +80,11 @@ def save_dictionary(dic, root_folder):
     np.save(root_folder + '/dictionary.npy',dic)
 
 def load_dictionary(root_folder):
-    dic = np.load(root_folder + '/dictionary.npy').item()
+    dic = None
+    try:
+        dic = np.load(root_folder + '/dictionary.npy').item()
+    except:
+        print("error loading dictionary:", sys.exc_info()[0])
     return dic
 
 # read images in all subfolders of the root folder
@@ -112,13 +122,14 @@ def train_model(root_folder):
                         print("Unexpected error:", sys.exc_info()[0])
                         raise
 
-    y = np.asarray(y, dtype=np.int32)
-
-    model = None
-    model = cv2.face_EigenFaceRecognizer.create()
-
-    model.train(np.asarray(X), np.asarray(y))
-
-    np.save(root_folder + '/dictionary.npy', dictionary)
-    model.save(root_folder + '/model_eigen.tst')
+    if c == 0:
+        print("no training material found in the folder " + root_folder + " cannot create model and dictionary")
+        return
+    else:
+        y = np.asarray(y, dtype=np.int32)
+        model = None
+        model = cv2.face_EigenFaceRecognizer.create()
+        model.train(np.asarray(X), np.asarray(y))
+        np.save(root_folder + '/dictionary.npy', dictionary)
+        model.save(root_folder + '/model_eigen.tst')
 
