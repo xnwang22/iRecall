@@ -8,6 +8,6 @@ if __name__ == "__main__":
     except:
         os.mkdir(root_folder)
 
-    dictionary = iRecall.load_dictionary('./data/')
+    dictionary = iRecall.load_dictionary(root_folder)
     maxConfidence = 10000
-    iRecall.process_image('test.jpg', dictionary, './data/', maxConfidence)
+    iRecall.process_image('test.jpg', dictionary, root_folder, maxConfidence)
