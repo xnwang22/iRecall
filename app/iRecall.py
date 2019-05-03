@@ -9,6 +9,7 @@ models = {'lbh': cv2.face.LBPHFaceRecognizer_create(), 'eigen': cv2.face_EigenFa
           'fisher': cv2.face_FisherFaceRecognizer.create()}
 
 
+
 def get_key_by_value(dictionary, val):
     for key, value in dictionary.items():
         if val == value[0]:
@@ -21,13 +22,17 @@ def process_image(filename, dictionary, root_folder, maxConfidence):
     countUnkown = 0
     faces = get_faces(filename)
     for face in faces:
-        (person_id, Confidence) = recognize_face(face, root_folder)
-        if Confidence < maxConfidence:
-            print("Label: %s, Confidence: %.2f" % (get_key_by_value(dictionary,person_id), Confidence))
-            save_face(face, get_key_by_value(dictionary,person_id),root_folder)
-            countRecognized += 1
+        if dictionary is not None:
+            (person_id, Confidence) = recognize_face(face, root_folder)
+            if Confidence < maxConfidence:
+                print("Label: %s, Confidence: %.2f" % (get_key_by_value(dictionary,person_id), Confidence))
+                save_face(face, get_key_by_value(dictionary,person_id), root_folder)
+                countRecognized += 1
+            else:
+                save_face(face, 'unknown', root_folder)
+                countUnkown += 1
         else:
-            save_face(face, 'unknown',root_folder)
+            save_face(face, 'unknown', root_folder)
             countUnkown += 1
         countTotal += 1
     print("Found "+str(countTotal)+" faces, "+str(countRecognized)+" known faces, "+str(countUnkown)+" unknown faces")
@@ -54,7 +59,7 @@ def recognize_face(face, root_folder):
         params = model.predict(face)
         return params
     except cv2.error as e:
-        print("cv2 error:", e)
+        print("iRecall error:", e)
     except:
         print("recognize_face Error:", sys.exc_info()[0])
     return (-1, 1000000)
@@ -84,7 +89,7 @@ def load_dictionary(root_folder):
     try:
         dic = np.load(root_folder + '/dictionary.npy').item()
     except:
-        print("error loading dictionary:", sys.exc_info()[0])
+        print("Dictionary doesn't exist, all faces will be placed in the unknown folder:", sys.exc_info()[0])
     return dic
 
 # read images in all subfolders of the root folder
