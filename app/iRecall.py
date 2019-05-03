@@ -85,12 +85,14 @@ def save_dictionary(dic, root_folder):
     np.save(root_folder + '/dictionary.npy',dic)
 
 def load_dictionary(root_folder):
-    dic = None
+#    dic = None
     try:
-        dic = np.load(root_folder + '/dictionary.npy').item()
+        dictionary_path = os.path.join(root_folder,'dictionary.npy')
+        dic = np.load(dictionary_path, encoding = 'latin1').item()
+        return dic
     except:
         print("Dictionary doesn't exist, all faces will be placed in the unknown folder:", sys.exc_info()[0])
-    return dic
+        return None
 
 # read images in all subfolders of the root folder
 # each subfolder name is a name of a person, his/her name also stored in dictionary
@@ -137,4 +139,4 @@ def train_model(root_folder):
         model.train(np.asarray(X), np.asarray(y))
         np.save(root_folder + '/dictionary.npy', dictionary)
         model.save(root_folder + '/model_eigen.tst')
-
+        dictionary = np.load(root_folder + '/dictionary.npy')
