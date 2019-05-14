@@ -1,0 +1,64 @@
+<script src="/static/jquery-3.3.1.min.js"></script>
+
+<ul>
+    <h1>Faces of {{name}}</h1>
+    <a href="/list_names">return to list of known people</a>
+    <table>
+        <tr>
+            <td>image</td>
+            <td>action</td>
+        </tr>
+
+    {% for file in files %}
+        <tr>
+            <td>
+                <!--div style='background:url("http://ssincpc:5000/get_image/{{name}}/{{file}}");background-size: 100% 100%'-->
+                <img src="/get_image/{{name}}/{{file}}" alt="" width="200" height="200" ></div>
+            </td>
+            <td>
+                <a href="/get_image/{{name}}/{{file}}">Move picture to</a>
+            </td>
+            <td>
+                <select id="{{ file }}" class="select">
+                {% for folder in folders %}
+                    {% if (folder == name) %}
+                        <option value="{{folder}}" selected>{{folder}}</option>
+                    {% else %}
+                        <option value="{{folder}}">{{folder}}</option>
+                    {% endif %}
+                {% endfor %}
+                </select>
+            </td>
+            <td>
+                <button id="delete_{{ file }}" class="btn_delete" title="Delete" onclick="deleteFile('{{ file }}')">Delete</button>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+</ul>
+
+<script>
+    jQuery(document).ready(function($) {
+
+        $(".select").change(function()
+        {
+           console.log($( this ).attr('id'));
+           console.log("to " + $( this ).val());
+           console.log("from " + "{{name}}");
+           folder_from = "{{name}}";
+           folder_to = $( this ).val();
+           file_name = $( this ).attr('id');
+
+           window.location = '/move_face/' + folder_from + '/' + folder_to + '/' + file_name;
+        });
+    });
+
+    function deleteFile(file_name)
+    {
+        if (confirm('Are you sure you want to delete file ' + file_name + '?'))
+        {
+            console.log('Deleting file ' + file_name);
+            window.location = '/delete_face/{{name}}/' + file_name;
+        }
+    }
+</script>

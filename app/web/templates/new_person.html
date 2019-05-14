@@ -1,0 +1,13 @@
+<html>
+<body>
+    {% from "_formhelpers.html" import render_field %}
+    <div>Enter new Person's name (Folder name)</div>
+    <form method=post action="/new_person">
+     <dl>
+     {{ render_field(form.person_name) }}
+     </dl>
+     <input type=submit value='Create' name='submit_btn'>
+    </form>
+    <a href="/list_names">Cancel and return to list of known people</a>
+ </body>
+</html>

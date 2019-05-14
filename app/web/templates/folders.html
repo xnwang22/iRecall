@@ -1,0 +1,9 @@
+<ul>
+    <h1>List of known people</h1>
+    <br>
+    <a href="/new_person">Create New</a>
+    <br>
+    {% for file in files %}
+    <li><a href="list_images/{{ file }}">{{ file }}</a></li>
+    {% endfor %}
+</ul>
